@@ -672,7 +672,7 @@ body.focus-mode-active #focus-tap-overlay {
 /* --- HUD Toast (on-screen feedback for play/pause, WPM, skip) --- */
 .hud-toast {
     position: fixed;
-    top: 50%;
+    top: 20%;
     left: 50%;
     transform: translate(-50%, -50%);
     background: rgba(0, 0, 0, 0.72);
