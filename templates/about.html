@@ -1,114 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>About RSVP | Speed Reading Benefits | ReadSteed</title>
-    <meta name="description" content="Learn the science behind RSVP (Rapid Serial Visual Presentation) and how ReadSteed helps you increase reading speed while maintaining comprehension.">
-    <meta name="keywords" content="how to speed read, RSVP reading, reading comprehension, productivity hacks, rapid serial visual presentation science">
-    <link rel="canonical" href="https://readsteed-rsvp-production.up.railway.app/about">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-</head>
-<body class="dark-mode theme-dark">
-    <div class="app-container">
-        <!-- Sidebar Overlay (Mobile) -->
-        <div id="sidebar-overlay" class="sidebar-overlay"></div>
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>Navigation</h2>
-            </div>
-            <div class="sidebar-content">
-                <a href="/" class="sidebar-link">← Back to Reader</a>
-            </div>
-            <div class="sidebar-footer">
-                <p>ReadSteed v1.0</p>
-            </div>
-        </aside>
+{% extends "base.html" %}
 
-        <!-- Main Content -->
-        <main class="main-content" style="overflow-y: auto;">
-            <header class="top-bar">
-                <div class="brand">
-                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo" onerror="this.style.display='none'">
-                    <h1>ReadSteed</h1>
+{% block title %}About RSVP Reading | ReadSteed{% endblock %}
+{% block meta_description %}Learn the science behind RSVP (Rapid Serial Visual Presentation) and how ReadSteed helps you increase reading speed while maintaining comprehension.{% endblock %}
+
+{% block content %}
+<section class="content-section">
+    <div class="container text-container">
+        <h1 class="page-title text-center">About RSVP Reading</h1>
+        
+        <div class="glass-panel" style="padding: 40px;">
+            <div style="line-height: 1.8; color: var(--text-primary); font-size: 1.1rem; gap: 30px; display: flex; flex-direction: column;">
+                <div>
+                    <h3 style="color: var(--accent-blue); margin-bottom: 10px; font-size: 1.5rem;">What is RSVP?</h3>
+                    <p>RSVP stands for Rapid Serial Visual Presentation. It is a scientifically-proven method of displaying text where a single word flashes on the screen in a fixed location at a specific speed. This format is designed to minimize distractions and completely eliminate the physical eye movements (saccades) required to read traditional blocks of text.</p>
                 </div>
                 
-                <div class="user-controls">
-                    {% if user %}
-                        <span class="user-greeting">Hi, {{ user.username }}{% if user.is_premium %} ⭐{% endif %}</span>
-                    {% endif %}
-                    <button id="sidebar-toggle" class="icon-btn">☰</button>
+                <div>
+                    <h3 style="color: var(--accent-blue); margin-bottom: 10px; font-size: 1.5rem;">The Benefits</h3>
+                    <ul style="margin-left: 20px;" class="feature-list">
+                        <li style="margin-bottom: 10px;"><strong>Unmatched Speed:</strong> By removing the need to scan lines of text, you can dramatically increase your reading speed natively without months of physical practice.</li>
+                        <li style="margin-bottom: 10px;"><strong>Hyper-Focus:</strong> Because the next word appears instantly over the last one, it creates a "forced focus" state that makes it incredibly hard for your attention to drift.</li>
+                        <li style="margin-bottom: 10px;"><strong>Reduced Strain:</strong> Less head and eye movement can significantly reduce fatigue during long, intense reading sessions.</li>
+                    </ul>
                 </div>
-            </header>
-
-            <section class="reader-section about-section">
-                <div class="glass-panel">
-                    <h2 style="margin-bottom: 20px; color: var(--accent-blue);">About RSVP Reading</h2>
-                    
-                    <div style="line-height: 1.8; color: var(--text-primary); font-size: 1.1rem; gap: 20px; display: flex; flex-direction: column;">
-                        <div>
-                            <h3 style="color: var(--text-secondary); margin-bottom: 10px;">What is RSVP?</h3>
-                            <p>RSVP stands for Rapid Serial Visual Presentation. It is a method of displaying text, where a single word (or small group of words) flashes on the screen in a fixed location at a specific speed. This format is designed to minimize distractions and eliminate the physical eye movement required to read traditional blocks of text.</p>
-                        </div>
-                        
-                        <div>
-                            <h3 style="color: var(--text-secondary); margin-bottom: 10px;">Benefits</h3>
-                            <ul style="margin-left: 20px;">
-                                <li><strong>Speed:</strong> By removing the need to scan lines of text (which involves slower saccadic eye movements and regressions), you can dramatically increase your reading speed.</li>
-                                <li><strong>Focus:</strong> Since the next word appears instantly over the last one, it creates a "forced focus" that makes it harder for your attention to drift.</li>
-                                <li><strong>Reduced Strain:</strong> Less head and eye movement can sometimes reduce fatigue during long reading sessions.</li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h3 style="color: var(--text-secondary); margin-bottom: 10px;">Best Practices</h3>
-                            <ul style="margin-left: 20px;">
-                                <li><strong>Start Slow:</strong> Don't jump to 500 WPM immediately. Start at a comfortable speed (around 200-250 WPM) and adjust upwards as you adapt.</li>
-                                <li><strong>Take Breaks:</strong> RSVP requires intense concentration. Take a 5-minute break every 20 minutes to rest your cognitive focus.</li>
-                                <li><strong>Use Focus Mode:</strong> Toggle ReadSteed's Focus Mode to hide extraneous UI components for pure distraction-free reading.</li>
-                            </ul>
-                        </div>
-                    </div>
+                
+                <div>
+                    <h3 style="color: var(--accent-blue); margin-bottom: 10px; font-size: 1.5rem;">Best Practices for ReadSteed</h3>
+                    <ul style="margin-left: 20px;" class="feature-list">
+                        <li style="margin-bottom: 10px;"><strong>Start Slow:</strong> Resist the urge to jump to 600 WPM immediately. Start at a comfortable baseline (around 200-250 WPM) and adjust upwards by 10 WPM intervals as your brain adapts.</li>
+                        <li style="margin-bottom: 10px;"><strong>Take Breaks:</strong> RSVP forces intense cognitive concentration. Take a 5-minute break every 20 minutes to rest your brain.</li>
+                        <li style="margin-bottom: 10px;"><strong>Use Focus Mode:</strong> Toggle ReadSteed's built-in Focus Mode to hide extraneous UI components and immerse yourself in the text.</li>
+                    </ul>
                 </div>
-            </section>
-        </main>
+            </div>
+            
+            <div class="text-center" style="margin-top: 40px;">
+                <a href="/app" class="action-btn primary" style="padding: 12px 30px; font-size: 1.1rem;">Try RSVP Reading Now</a>
+            </div>
+        </div>
     </div>
-
-    <!-- Branding Footer -->
-    <div class="branding-footer" style="padding: 16px; text-align: center; font-size: 0.75rem; color: var(--text-secondary); opacity: 0.6; padding-bottom: max(20px, env(safe-area-inset-bottom));">By Lev Khaimovich</div>
-    
-    <script>
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        
-        // Auto-close sidebar on mobile start
-        if (window.innerWidth <= 768) {
-            sidebar.classList.add('closed');
-        }
-
-        const toggleSidebar = () => {
-            const isClosed = sidebar.classList.toggle('closed');
-            if (overlay) {
-                if (isClosed) {
-                    overlay.classList.remove('active');
-                } else {
-                    overlay.classList.add('active');
-                }
-            }
-        };
-
-        document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
-        if (overlay) {
-            overlay.addEventListener('click', () => {
-                sidebar.classList.add('closed');
-                overlay.classList.remove('active');
-            });
-        }
-    </script>
-</body>
-</html>
+</section>
+{% endblock %}

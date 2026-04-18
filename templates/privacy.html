@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy | ReadSteed{% endblock %}
+
+{% block content %}
+<section class="content-section">
+    <div class="container text-container text-left glass-panel" style="padding: 40px;">
+        <h1 class="page-title text-center">Privacy Policy</h1>
+        <p style="color: var(--text-secondary); text-align: center; margin-bottom: 30px;">Last updated: April 2026</p>
+        
+        <div style="line-height: 1.8; color: var(--text-primary);">
+            <p style="margin-bottom: 20px;">At ReadSteed, accessible from our web app, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by ReadSteed and how we use it.</p>
+            
+            <h2 style="color: var(--accent-blue); margin-top: 30px; margin-bottom: 15px;">Information We Collect</h2>
+            <p style="margin-bottom: 10px;">If you choose to create an account, we collect your email address and a custom username. We also securely store your hashed password.</p>
+            <p style="margin-bottom: 10px;">If you use the cloud-sync feature, the text of the readings you save and your reading progress indicators are stored in our secure database to provide cross-device synchronization.</p>
+            
+            <h2 style="color: var(--accent-blue); margin-top: 30px; margin-bottom: 15px;">How We Use Your Information</h2>
+            <p style="margin-bottom: 20px;">We use the information we collect to:</p>
+            <ul style="margin-left: 20px; margin-bottom: 20px;">
+                <li>Provide, operate, and maintain our application</li>
+                <li>Understand and analyze how you use our application</li>
+                <li>Develop new products, services, and features</li>
+                <li>Communicate with you for customer service</li>
+            </ul>
+            
+            <h2 style="color: var(--accent-blue); margin-top: 30px; margin-bottom: 15px;">Data Security</h2>
+            <p style="margin-bottom: 20px;">We employ industry-standard security measures (including secure PostgreSQL session pooling via Supabase) to protect your personal information and saved readings from unauthorized access. However, no method of transmission over the internet or electronic storage is 100% secure.</p>
+            
+            <h2 style="color: var(--accent-blue); margin-top: 30px; margin-bottom: 15px;">Contact</h2>
+            <p>If you have any questions about this Privacy Policy, you can contact us at support@readsteed.com.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

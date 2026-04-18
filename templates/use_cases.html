@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Use Cases | Who is ReadSteed For?{% endblock %}
+{% block meta_description %}From students prepping for exams to professionals clearing their inbox, see how different people use ReadSteed to reclaim their time.{% endblock %}
+
+{% block content %}
+<section class="content-section">
+    <div class="container text-container">
+        <h1 class="page-title text-center">Who Uses ReadSteed?</h1>
+        
+        <div style="display: flex; flex-direction: column; gap: 40px; margin-top: 40px;">
+            
+            <div class="glass-panel" style="padding: 30px; display: flex; gap: 20px; align-items: flex-start;">
+                <div style="font-size: 2.5rem; background: rgba(59,130,246,0.1); padding: 15px; border-radius: 12px; color: var(--accent-blue);">🎓</div>
+                <div>
+                    <h2 style="margin-bottom: 15px; color: var(--text-primary);">Students & Academics</h2>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">Facing overwhelming reading loads for literature or STEM degrees? ReadSteed allows you to paste long journal articles or PDFs (converted to text) and blaze through them. Cut a 2-hour reading assignment down to 45 minutes.</p>
+                </div>
+            </div>
+            
+            <div class="glass-panel" style="padding: 30px; display: flex; gap: 20px; align-items: flex-start;">
+                <div style="font-size: 2.5rem; background: rgba(59,130,246,0.1); padding: 15px; border-radius: 12px; color: var(--accent-blue);">💼</div>
+                <div>
+                    <h2 style="margin-bottom: 15px; color: var(--text-primary);">Busy Professionals</h2>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">Corporate memos, endless email threads, and industry reports take up too much time. Use the speed reader to instantly process daily information streams and get back to executing your core work.</p>
+                </div>
+            </div>
+            
+            <div class="glass-panel" style="padding: 30px; display: flex; gap: 20px; align-items: flex-start;">
+                <div style="font-size: 2.5rem; background: rgba(59,130,246,0.1); padding: 15px; border-radius: 12px; color: var(--accent-blue);">🧠</div>
+                <div>
+                    <h2 style="margin-bottom: 15px; color: var(--text-primary);">ADHD & Focus Management</h2>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">Traditional reading layouts allow the eye to wander, making it easy to lose your place or get distracted by surrounding elements. RSVP's "forced focus" mechanic locks your attention to a single spot, making it incredibly popular among users who struggle with reading focus.</p>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="text-center" style="margin-top: 50px;">
+            <p style="margin-bottom: 20px; color: var(--text-secondary);">Join thousands of users optimizing their cognitive output.</p>
+            <a href="/app" class="action-btn primary" style="padding: 15px 40px; font-size: 1.2rem;">Start Reading Faster</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

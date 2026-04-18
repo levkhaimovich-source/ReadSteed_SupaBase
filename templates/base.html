@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <title>{% block title %}ReadSteed | Professional RSVP Speed Reading App{% endblock %}</title>
+    
+    <meta name="description" content="{% block meta_description %}ReadSteed is a high-performance RSVP speed reading tool designed to help you read up to 5x faster. Perfect for students, professionals, and anyone looking to improve reading efficiency.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}speed reading, RSVP reader, ReadSteed, rapid serial visual presentation, fast reading, reading productivity, study tool{% endblock %}">
+    <meta name="author" content="Lev Khaimovich">
+    
+    {% block canonical %}
+    <link rel="canonical" href="https://readsteed-rsvp-production.up.railway.app{{ request.path }}">
+    {% endblock %}
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://readsteed-rsvp-production.up.railway.app{{ request.path }}">
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="og:image" content="{{ url_for('static', filename='logo.png', _external=True) }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://readsteed-rsvp-production.up.railway.app{{ request.path }}">
+    <meta property="twitter:title" content="{% block twitter_title %}{{ self.title() }}{% endblock %}">
+    <meta property="twitter:description" content="{% block twitter_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="twitter:image" content="{{ url_for('static', filename='logo.png', _external=True) }}">
+
+    <!-- Structured Data -->
+    {% block schema %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "ReadSteed",
+      "url": "https://readsteed-rsvp-production.up.railway.app/",
+      "logo": "https://readsteed-rsvp-production.up.railway.app/static/logo.png",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web, Mobile",
+      "about": "RSVP Speed Reading Tool",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+    {% endblock %}
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="dark-mode">
+    <div class="marketing-wrapper">
+        <!-- SaaS Top Navigation (For Marketing Pages) -->
+        {% block topnav %}
+        <nav class="saas-nav">
+            <div class="nav-container">
+                <a href="/" class="brand no-underline">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="ReadSteed Logo" class="logo">
+                    <h1>ReadSteed</h1>
+                </a>
+                
+                <div class="nav-links">
+                    <a href="/how-it-works">How It Works</a>
+                    <a href="/features">Features</a>
+                    <a href="/use-cases">Use Cases</a>
+                    <a href="/guide">Speed Reading</a>
+                </div>
+                
+                <div class="nav-actions">
+                    {% if user %}
+                        <a href="/app" class="action-btn primary">Open Reader</a>
+                    {% else %}
+                        <a href="/app" class="action-btn primary">Start Reading</a>
+                    {% endif %}
+                    
+                    <!-- Mobile Hamburger -->
+                    <button class="mobile-menu-btn" id="mobile-menu-btn">
+                        <span></span><span></span><span></span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mobile-nav" id="mobile-nav">
+                <a href="/how-it-works">How It Works</a>
+                <a href="/features">Features</a>
+                <a href="/use-cases">Use Cases</a>
+                <a href="/guide">Speed Reading</a>
+                <a href="/about">About RSVP</a>
+                <a href="/faq">FAQ</a>
+            </div>
+        </nav>
+        {% endblock %}
+
+        <main class="marketing-main">
+            {% block content %}{% endblock %}
+        </main>
+
+        {% block footer %}
+        <footer class="saas-footer">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <div class="brand">
+                        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo" style="width:24px; height:24px;">
+                        <h3>ReadSteed</h3>
+                    </div>
+                    <p style="margin-top: 15px; color: var(--text-secondary); max-width: 250px;">Read 2x-5x faster using Rapid Serial Visual Presentation.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <a href="/features">Features</a>
+                    <a href="/how-it-works">How It Works</a>
+                    <a href="/use-cases">Use Cases</a>
+                    <a href="/faq">FAQ</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <a href="/guide">Speed Reading Guide</a>
+                    <a href="/about">About RSVP</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <a href="/contact">Contact</a>
+                    <a href="/privacy">Privacy Policy</a>
+                    <a href="/terms">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 ReadSteed by Lev Khaimovich. All rights reserved.
+            </div>
+        </footer>
+        {% endblock %}
+    </div>
+
+    <!-- Auth Modal for App (Optional inclusion) -->
+    {% block auth_modal %}{% endblock %}
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        // Mobile Menu Toggle logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const mobileNav = document.getElementById('mobile-nav');
+            if(mobileMenuBtn && mobileNav) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenuBtn.classList.toggle('active');
+                    mobileNav.classList.toggle('active');
+                });
+            }
+        });
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

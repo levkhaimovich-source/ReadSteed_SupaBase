@@ -26,10 +26,14 @@ def sitemap():
     return send_from_directory('.', 'sitemap.xml')
 
 @app.route('/')
-def index():
+def landing():
+    return render_template('landing.html', user=session.get('user_id'))
+
+@app.route('/app')
+def reader_app():
     if 'user_id' not in session:
-        return render_template('index.html', user=None)
-    return render_template('index.html', user={
+        return render_template('app.html', user=None)
+    return render_template('app.html', user={
         "username": session.get('username'),
         "is_premium": session.get('is_premium'),
         "user_id": session.get('user_id')
@@ -37,13 +41,39 @@ def index():
 
 @app.route('/about')
 def about():
-    if 'user_id' not in session:
-        return render_template('about.html', user=None)
-    return render_template('about.html', user={
-        "username": session.get('username'),
-        "is_premium": session.get('is_premium'),
-        "user_id": session.get('user_id')
-    })
+    return render_template('about.html', user=session.get('user_id'))
+
+@app.route('/how-it-works')
+def how_it_works():
+    return render_template('how_it_works.html', user=session.get('user_id'))
+
+@app.route('/guide')
+def guide():
+    return render_template('guide.html', user=session.get('user_id'))
+
+@app.route('/features')
+def features():
+    return render_template('features.html', user=session.get('user_id'))
+
+@app.route('/use-cases')
+def use_cases():
+    return render_template('use_cases.html', user=session.get('user_id'))
+
+@app.route('/faq')
+def faq():
+    return render_template('faq.html', user=session.get('user_id'))
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html', user=session.get('user_id'))
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html', user=session.get('user_id'))
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html', user=session.get('user_id'))
 @app.route('/api/auth/signup', methods=['POST'])
 def signup_api():
     data = request.json

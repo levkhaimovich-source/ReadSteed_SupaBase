@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero-section text-center">
+    <div class="hero-content">
+        <h1 class="hero-title">Read 2x–5x Faster Using RSVP Reading</h1>
+        <p class="hero-subtitle">Breeze through articles, study material, and books instantly. ReadSteed uses Rapid Serial Visual Presentation to eliminate eye movement and skyrocket your reading speed.</p>
+        <div class="hero-ctas" style="margin-top: 30px;">
+            <a href="/app" class="action-btn primary" style="font-size: 1.2rem; padding: 15px 30px;">Start Reading Now</a>
+        </div>
+    </div>
+</section>
+
+<!-- Demo Section highlighting the Reader itself -->
+<section class="demo-section">
+    <div class="glass-panel demo-mockup">
+        <div class="rsvp-canvas" style="height: 150px; border: none;">
+            <div class="focus-lines">
+                <div class="line top"></div>
+                <div class="line bottom"></div>
+            </div>
+            <div class="word-display" style="font-size: 3rem;">
+                <span class="prefix">effi</span><span class="focus">c</span><span class="suffix">iency</span>
+            </div>
+        </div>
+        <div class="demo-caption text-center" style="color: var(--text-secondary); margin-top: 20px;">
+            <p>Focus on one word at a time. No distractions. Pure speed.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Value Props -->
+<section class="features-grid-section">
+    <div class="container">
+        <h2 class="text-center section-title">Why ReadSteed?</h2>
+        <div class="features-grid">
+            <div class="feature-card glass-panel">
+                <h3>Limitless Speed</h3>
+                <p>Adjust your WPM from a comfortable 200 up to an incredible 1000 WPM with precision controls.</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <h3>Absolute Focus</h3>
+                <p>Toggle Focus Mode to hide all UI elements. Perfect for ADHD or deep work sessions.</p>
+            </div>
+            <div class="feature-card glass-panel">
+                <h3>Save Progress</h3>
+                <p>Create an account to save your readings and track your progress across devices.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section text-center" style="margin-top: 60px; margin-bottom: 80px;">
+    <h2>Ready to transform how you read?</h2>
+    <a href="/app" class="action-btn primary" style="font-size: 1.2rem; padding: 15px 30px; margin-top: 20px; display: inline-block;">Open The Reader</a>
+</section>
+{% endblock %}

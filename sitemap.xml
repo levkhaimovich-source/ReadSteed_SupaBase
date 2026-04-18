@@ -3,13 +3,67 @@
     <url>
         <loc>https://readsteed-rsvp-production.up.railway.app/</loc>
         <lastmod>2026-04-18</lastmod>
-        <changefreq>monthly</changefreq>
+        <changefreq>weekly</changefreq>
         <priority>1.0</priority>
+    </url>
+    <url>
+        <loc>https://readsteed-rsvp-production.up.railway.app/app</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://readsteed-rsvp-production.up.railway.app/guide</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://readsteed-rsvp-production.up.railway.app/how-it-works</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://readsteed-rsvp-production.up.railway.app/features</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://readsteed-rsvp-production.up.railway.app/use-cases</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
     </url>
     <url>
         <loc>https://readsteed-rsvp-production.up.railway.app/about</loc>
         <lastmod>2026-04-18</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>https://readsteed-rsvp-production.up.railway.app/faq</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>https://readsteed-rsvp-production.up.railway.app/contact</loc>
+        <lastmod>2026-04-18</lastmod>
         <changefreq>yearly</changefreq>
-        <priority>0.8</priority>
+        <priority>0.5</priority>
+    </url>
+    <url>
+        <loc>https://readsteed-rsvp-production.up.railway.app/privacy</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.4</priority>
+    </url>
+    <url>
+        <loc>https://readsteed-rsvp-production.up.railway.app/terms</loc>
+        <lastmod>2026-04-18</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.4</priority>
     </url>
 </urlset>

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Speed Reading FAQ | ReadSteed{% endblock %}
+{% block meta_description %}Frequently asked questions about RSVP reading, ReadSteed features, and how to increase your reading speed and comprehension.{% endblock %}
+
+{% block content %}
+<section class="content-section">
+    <div class="container text-container text-left">
+        <h1 class="page-title text-center">Frequently Asked Questions</h1>
+        
+        <div class="faq-container" style="margin-top: 40px; display: flex; flex-direction: column; gap: 15px;">
+            
+            <details class="glass-panel" style="padding: 20px; cursor: pointer; border-radius: 8px;">
+                <summary style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary); outline: none;">Is RSVP reading scientifically proven?</summary>
+                <p style="margin-top: 15px; color: var(--text-secondary); line-height: 1.6;">Yes. Studies have consistently shown that removing the need for physical eye movement (saccades) allows humans to process textual information considerably faster. The primary bottleneck in reading is physical, not cognitive.</p>
+            </details>
+            
+            <details class="glass-panel" style="padding: 20px; cursor: pointer; border-radius: 8px;">
+                <summary style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary); outline: none;">Will my comprehension drop?</summary>
+                <p style="margin-top: 15px; color: var(--text-secondary); line-height: 1.6;">Initially, pushing to a very high WPM (e.g., jumping from 250 to 600) may reduce comprehension as your brain adapts to giving up subvocalization. However, with moderate increases (e.g., 250 to 350) users often report *increased* comprehension due to the hyper-focus required.</p>
+            </details>
+            
+            <details class="glass-panel" style="padding: 20px; cursor: pointer; border-radius: 8px;">
+                <summary style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary); outline: none;">Is ReadSteed completely free?</summary>
+                <p style="margin-top: 15px; color: var(--text-secondary); line-height: 1.6;">ReadSteed offers a robust free tier that includes full access to the RSVP engine, Focus Mode, and speed controls. A premium tier exists to support the developers and unlocks cloud syncing.</p>
+            </details>
+            
+            <details class="glass-panel" style="padding: 20px; cursor: pointer; border-radius: 8px;">
+                <summary style="font-size: 1.2rem; font-weight: 600; color: var(--text-primary); outline: none;">Can I upload my own documents?</summary>
+                <p style="margin-top: 15px; color: var(--text-secondary); line-height: 1.6;">Yes! You can paste any raw text into the reader, or use the "Upload .txt" feature to instantly load long files directly into your reading queue.</p>
+            </details>
+            
+        </div>
+        
+        <div class="text-center" style="margin-top: 50px;">
+            <p style="margin-bottom: 20px; color: var(--text-secondary);">Still have questions? Feel free to <a href="/contact" style="color: var(--accent-blue);">contact us</a>.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

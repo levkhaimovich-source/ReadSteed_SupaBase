@@ -132,10 +132,10 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar">
-                <div class="brand">
+                <a href="/" class="brand" style="text-decoration: none;">
                     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo" onerror="this.style.display='none'">
                     <h1>ReadSteed</h1>
-                </div>
+                </a>
                 
                 <div class="user-controls">
                     {% if user %}
