@@ -8,9 +8,12 @@ from sqlalchemy.exc import IntegrityError
 # Fallback to local SQLite if DATABASE_URL (Supabase/Railway) is missing
 DATABASE_URL = os.environ.get('DATABASE_URL', 'sqlite:///rsvp_app.db')
 
+# Railway/Heroku sometimes provide 'postgres://' — SQLAlchemy requires 'postgresql://'
+if DATABASE_URL.startswith('postgres://'):
+    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+
 # SQLAlchemy setup
-# If using Postgres, you might need to adjust pool settings for production
-kwargs = {}
+kwargs = {'pool_pre_ping': True}  # Verify connections before use
 if DATABASE_URL.startswith('sqlite'):
     kwargs['connect_args'] = {'check_same_thread': False}
 
@@ -67,7 +70,12 @@ class ReadingSession(Base):
 
 
 def init_db():
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("[DB] Tables created/verified successfully.")
+    except Exception as e:
+        print(f"[DB] WARNING: Could not connect to database on startup: {e}")
+        print("[DB] App will start, but DB operations may fail. Check DATABASE_URL env var.")
 
 def get_db():
     db = SessionLocal()
