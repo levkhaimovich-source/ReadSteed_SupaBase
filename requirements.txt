@@ -1,0 +1,6 @@
+customtkinter
+Pillow
+flask
+gunicorn
+SQLAlchemy
+psycopg2-binary

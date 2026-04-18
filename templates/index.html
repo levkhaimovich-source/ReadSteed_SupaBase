@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ReadSteed | Read with Speed</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+</head>
+<body class="dark-mode">
+    <div class="app-container">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Menu</h2>
+                <button id="new-reading-btn" class="icon-btn" title="New Reading" style="background: var(--accent-blue); color: white; width: 30px; height: 30px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">+</button>
+            </div>
+            
+            <div class="sidebar-nav" style="padding: 16px; border-bottom: 1px solid var(--border-color);">
+                <a href="/about" class="sidebar-link" style="color: var(--accent-blue); text-decoration: none; font-weight: 600; display: block; margin-bottom: 15px;">About RSVP</a>
+                
+                <h3 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 10px;">Settings</h3>
+                <div class="setting-item" style="margin-bottom: 10px;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Background Color</label>
+                    <select id="bg-color-input" style="width: 100%; padding: 6px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.8rem;">
+                        <option value="">Default (Dark Blue)</option>
+                        <option value="#000000">Pure Black</option>
+                        <option value="#1a1a1a">Deep Gray</option>
+                        <option value="#0f172a">Slate Blue</option>
+                        <option value="#1e293b">Navy</option>
+                        <option value="#f8fafc">Pure White</option>
+                        <option value="#f4ecd8">Sepia</option>
+                    </select>
+                </div>
+                <div class="setting-item" style="margin-bottom: 10px;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Text Color</label>
+                    <select id="text-color-input" style="width: 100%; padding: 6px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.8rem;">
+                        <option value="">Default (White)</option>
+                        <option value="#ffffff">Pure White</option>
+                        <option value="#f8fafc">Off White</option>
+                        <option value="#e2e8f0">Light Gray</option>
+                        <option value="#fbbf24">Amber</option>
+                        <option value="#34d399">Emerald</option>
+                        <option value="#60a5fa">Sky Blue</option>
+                        <option value="#000000">Midnight</option>
+                    </select>
+                </div>
+                <div class="setting-item" style="margin-bottom: 10px;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Theme Preset</label>
+                    <select id="theme-preset" style="width: 100%; padding: 6px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.8rem;">
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                        <option value="sepia">Sepia</option>
+                    </select>
+                </div>
+                <div class="setting-item" style="margin-bottom: 5px;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Font Style</label>
+                    <select id="font-preset" style="width: 100%; padding: 6px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.8rem;">
+                        <option value="Inter">Inter</option>
+                        <option value="Arial">Arial</option>
+                        <option value="'Times New Roman'">Times New Roman</option>
+                        <option value="'Courier New'">Courier New</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="sidebar-header" style="border-top: none;">
+                <h2>Your Library</h2>
+            </div>
+            <div class="sidebar-content" id="readings-list">
+                <!-- Readings will be injected here -->
+                <p class="sidebar-info">Log in to save your readings.</p>
+            </div>
+            <div class="sidebar-footer">
+                <p>ReadSteed v1.0</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="brand">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo" onerror="this.style.display='none'">
+                    <h1>ReadSteed</h1>
+                </div>
+                
+                <div class="user-controls">
+                    {% if user %}
+                        <span class="user-greeting">Hi, {{ user.username }}{% if user.is_premium %} ⭐{% endif %}</span>
+                        <button id="logout-btn" class="secondary-btn">Logout</button>
+                    {% else %}
+                        <button id="show-login-btn" class="primary-btn">Login / Sign Up</button>
+                    {% endif %}
+                    <button id="sidebar-toggle" class="icon-btn">☰</button>
+                </div>
+            </header>
+
+            <section class="reader-section">
+                <!-- Input Area -->
+                <div id="input-container" class="glass-panel">
+                    <textarea id="text-input" placeholder="Paste your text here to begin..." style="margin-bottom: 10px;"></textarea>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: var(--text-secondary); font-size: 0.9rem;">
+                        <span id="text-stats">0 words | 0 min read</span>
+                        <label class="action-btn secondary" style="cursor: pointer; padding: 6px 12px; font-size: 0.9rem; border: 1px solid var(--border-color); background: transparent; border-radius: 6px; color: var(--text-primary);">
+                            Upload .txt
+                            <input type="file" id="file-upload" accept=".txt" style="display: none;">
+                        </label>
+                    </div>
+
+                    <div class="input-actions">
+                        <button id="start-btn" class="action-btn primary" style="width: 100%;">Start Reading</button>
+                    </div>
+                </div>
+
+                <!-- RSVP Display -->
+                <div id="display-container" class="glass-panel hidden">
+                    <div class="rsvp-canvas" id="rsvp-canvas">
+                        <div class="focus-lines">
+                            <div class="line top"></div>
+                            <div class="line bottom"></div>
+                        </div>
+                        <div id="word-display" class="word-display">
+                            <span id="prefix" class="prefix"></span><span id="focus" class="focus"></span><span id="suffix" class="suffix"></span>
+                        </div>
+                        <div id="countdown" class="countdown hidden">3</div>
+                    </div>
+
+                    <div class="reader-progress">
+                        <div class="progress-bar-bg">
+                            <div id="progress-fill" class="progress-fill"></div>
+                        </div>
+                        <span id="progress-text">0 / 0 words</span>
+                    </div>
+
+                    <div class="reader-controls">
+                        <button id="play-pause-btn" class="control-btn">Play</button>
+                        <button id="reset-btn" class="control-btn secondary">Reset</button>
+                        <div class="wpm-control">
+                            <label for="wpm-slider">Speed: <span id="wpm-value">300</span> WPM</label>
+                            <input type="range" id="wpm-slider" min="100" max="1000" step="10" value="300">
+                        </div>
+                        <button id="exit-reader-btn" class="control-btn secondary">Exit Reader</button>
+                        <button id="focus-mode-toggle" class="control-btn secondary" style="margin-right: auto;">Focus Mode</button>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="branding-footer" style="position: absolute; bottom: 15px; left: 15px; font-size: 0.75rem; color: var(--text-secondary); z-index: 20; pointer-events: none; opacity: 0.6;">By Lev Khaimovich</div>
+        </main>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2 id="modal-title">Welcome Back</h2>
+                <button id="close-modal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="login-form">
+                    <input type="email" id="login-email" placeholder="Email">
+                    <input type="password" id="login-password" placeholder="Password">
+                    <button id="do-login-btn" class="action-btn primary">Login</button>
+                    <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
+                </div>
+                <div id="signup-form" class="hidden">
+                    <input type="text" id="signup-username" placeholder="Username">
+                    <input type="email" id="signup-email" placeholder="Email">
+                    <input type="password" id="signup-password" placeholder="Password">
+                    <button id="do-signup-btn" class="action-btn primary">Create Account</button>
+                    <p>Already have an account? <a href="#" id="show-login">Login</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui-message-footer" style="position: fixed; bottom: 10px; right: 10px; font-size: 0.8rem; color: var(--text-secondary); z-index: 1000; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px; pointer-events: none;">Thank you for choosing ReadSteed</div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
