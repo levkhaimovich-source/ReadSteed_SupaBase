@@ -668,3 +668,42 @@ body.focus-mode-active #focus-tap-overlay {
         text-align: center;
     }
 }
+
+/* --- HUD Toast (on-screen feedback for play/pause, WPM, skip) --- */
+.hud-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.72);
+    color: #fff;
+    font-size: clamp(1.4rem, 6vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 14px 32px;
+    border-radius: 18px;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.12);
+    white-space: nowrap;
+}
+
+.hud-toast.visible {
+    opacity: 1;
+}
+
+/* --- Keyboard shortcut key pills in sidebar --- */
+.kbd {
+    display: inline-block;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 0.78rem;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: var(--text-primary);
+    line-height: 1.5;
+}

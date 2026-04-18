@@ -38,6 +38,8 @@ class RSVPReader {
         document.getElementById('reset-btn').addEventListener('click', () => this.reset());
         document.getElementById('exit-reader-btn').addEventListener('click', () => this.exitReader());
         document.getElementById('new-reading-btn').addEventListener('click', () => this.newReading());
+        document.getElementById('skip-back-btn').addEventListener('click', () => this.skipWords(-5));
+        document.getElementById('skip-fwd-btn').addEventListener('click', () => this.skipWords(5));
         
         this.initFeatures();
 
@@ -223,6 +225,7 @@ class RSVPReader {
                     this.wpmSlider.value = this.wpm;
                     this.wpmValue.textContent = this.wpm;
                     if (this.updateStats) this.updateStats();
+                    this.showHUD(`${this.wpm} WPM`);
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
@@ -230,6 +233,15 @@ class RSVPReader {
                     this.wpmSlider.value = this.wpm;
                     this.wpmValue.textContent = this.wpm;
                     if (this.updateStats) this.updateStats();
+                    this.showHUD(`${this.wpm} WPM`);
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    this.skipWords(-5);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    this.skipWords(5);
                     break;
                 case 'Escape':
                     e.preventDefault();
@@ -331,6 +343,10 @@ class RSVPReader {
         }
 
         this.playPauseBtn.textContent = this.isPlaying ? 'Pause' : 'Play';
+        // Show on-screen HUD (only when user actively triggers, not during auto-run internals)
+        if (forceValue === undefined) {
+            this.showHUD(this.isPlaying ? '▶  Play' : '⏸  Pause');
+        }
         
         if (this.isPlaying) {
             this.run();
@@ -412,6 +428,26 @@ class RSVPReader {
         }
         document.body.classList.remove('focus-mode-active');
         document.body.style.overflow = '';
+    }
+
+    // --- HUD Toast (on-screen feedback) ---
+    showHUD(text, duration = 750) {
+        const hud = document.getElementById('hud-toast');
+        if (!hud) return;
+        hud.textContent = text;
+        hud.classList.add('visible');
+        clearTimeout(this._hudTimer);
+        this._hudTimer = setTimeout(() => hud.classList.remove('visible'), duration);
+    }
+
+    // --- Skip words equivalent to N seconds at current WPM ---
+    skipWords(seconds) {
+        if (!this.words.length) return;
+        const delta = Math.max(1, Math.round(this.wpm / 60 * Math.abs(seconds))) * Math.sign(seconds);
+        this.currentIndex = Math.max(0, Math.min(this.words.length - 1, this.currentIndex + delta));
+        this.updateProgress();
+        this.displayWord();
+        this.showHUD(seconds > 0 ? '+5s ▶▶' : '◀◀ -5s');
     }
 
 

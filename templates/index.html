@@ -68,6 +68,16 @@
                 </div>
             </div>
 
+            <div style="padding: 16px; border-bottom: 1px solid var(--border-color);">
+                <h3 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 10px;">Keyboard Shortcuts</h3>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 7px; line-height: 1.4;">
+                    <div><kbd class="kbd">Space</kbd> &nbsp;Play / Pause</div>
+                    <div><kbd class="kbd">&uarr;</kbd> <kbd class="kbd">&darr;</kbd> &nbsp;Speed &plusmn;10 WPM</div>
+                    <div><kbd class="kbd">&larr;</kbd> <kbd class="kbd">&rarr;</kbd> &nbsp;Skip &plusmn;5 seconds</div>
+                    <div><kbd class="kbd">Esc</kbd> &nbsp;Exit / Leave Focus</div>
+                </div>
+            </div>
+
             <div class="sidebar-header" style="border-top: none;">
                 <h2>Your Library</h2>
             </div>
@@ -139,6 +149,8 @@
 
                     <div class="reader-controls">
                         <button id="play-pause-btn" class="control-btn">Play</button>
+                        <button id="skip-back-btn" class="control-btn secondary" title="Skip back 5 seconds" style="min-width: 70px;">&#171; 5s</button>
+                        <button id="skip-fwd-btn" class="control-btn secondary" title="Skip forward 5 seconds" style="min-width: 70px;">5s &#187;</button>
                         <button id="reset-btn" class="control-btn secondary">Reset</button>
                         <div class="wpm-control">
                             <label for="wpm-slider">Speed: <span id="wpm-value">300</span> WPM</label>
@@ -183,6 +195,9 @@
 
     <!-- Tap-to-pause overlay: invisible normally, covers screen in focus mode for mobile tap support -->
     <div id="focus-tap-overlay"></div>
+
+    <!-- On-screen HUD toast for play/pause state, WPM, and skip feedback -->
+    <div id="hud-toast" class="hud-toast"></div>
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
