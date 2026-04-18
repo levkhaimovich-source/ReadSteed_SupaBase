@@ -181,6 +181,9 @@
 
     <div class="ui-message-footer" style="position: fixed; bottom: 10px; right: 10px; font-size: 0.8rem; color: var(--text-secondary); z-index: 1000; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 10px; pointer-events: none;">Thank you for choosing ReadSteed</div>
 
+    <!-- Tap-to-pause overlay: invisible normally, covers screen in focus mode for mobile tap support -->
+    <div id="focus-tap-overlay"></div>
+
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

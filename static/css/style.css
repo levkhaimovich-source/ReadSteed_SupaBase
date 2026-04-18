@@ -544,7 +544,7 @@ body.theme-sepia {
     --text-secondary: #705b43;
 }
 
-/* Focus Mode */
+/* Focus Mode - True Full Screen */
 body.focus-mode-active .sidebar,
 body.focus-mode-active .top-bar,
 body.focus-mode-active .reader-progress,
@@ -553,24 +553,68 @@ body.focus-mode-active #reset-btn,
 body.focus-mode-active #exit-reader-btn,
 body.focus-mode-active #sidebar-toggle,
 body.focus-mode-active .branding-footer,
-body.focus-mode-active .ui-message-footer {
+body.focus-mode-active .ui-message-footer,
+body.focus-mode-active #focus-mode-toggle,
+body.focus-mode-active .focus-lines,
+body.focus-mode-active .reader-controls {
     display: none !important;
 }
 
-body.focus-mode-active .focus-lines {
-    /* Keep focus lines? Requirement says "All UI elements hidden except play/pause". We can hide lines. */
-    display: none !important;
+body.focus-mode-active .main-content {
+    background: var(--bg-dark);
+}
+
+body.focus-mode-active .reader-section {
+    padding: 0 !important;
+    align-items: stretch;
 }
 
 body.focus-mode-active .glass-panel {
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+body.focus-mode-active #display-container {
+    height: 100%;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
 }
 
 body.focus-mode-active .rsvp-canvas {
-    border: none;
+    border: none !important;
+    background: transparent !important;
+    height: 100% !important;
+    flex: 1;
+    margin-bottom: 0 !important;
+}
+
+/* Tap-to-pause overlay (mobile, shown only in focus mode) */
+#focus-tap-overlay {
+    display: none;
+}
+
+body.focus-mode-active #focus-tap-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
     background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* --- About page fix: prevent footer from covering content on mobile --- */
+.about-section {
+    padding-bottom: max(60px, env(safe-area-inset-bottom)) !important;
 }
 
 /* --- Media Queries for Responsiveness --- */

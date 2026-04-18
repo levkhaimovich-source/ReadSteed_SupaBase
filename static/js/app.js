@@ -198,6 +198,12 @@ class RSVPReader {
             }
         });
 
+        // Mobile tap-to-pause overlay (active only in focus mode)
+        const tapOverlay = document.getElementById('focus-tap-overlay');
+        if (tapOverlay) {
+            tapOverlay.addEventListener('click', () => this.togglePlay());
+        }
+
         // Global Keyboard Shortcuts
         document.addEventListener('keydown', (e) => {
             // Only trigger if we are actively in the reader display
