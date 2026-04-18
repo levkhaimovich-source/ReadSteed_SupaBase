@@ -3,7 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ReadSteed | Read with Speed</title>
+    <title>ReadSteed | Professional RSVP Speed Reading App</title>
+    <meta name="description" content="ReadSteed is a high-performance RSVP speed reading tool designed to help you read up to 5x faster. Perfect for students, professionals, and anyone looking to improve reading efficiency.">
+    <meta name="keywords" content="speed reading, RSVP reader, ReadSteed, rapid serial visual presentation, fast reading, reading productivity, study tool">
+    <meta name="author" content="Lev Khaimovich">
+    <link rel="canonical" href="https://readsteed-rsvp-production.up.railway.app/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://readsteed-rsvp-production.up.railway.app/">
+    <meta property="og:title" content="ReadSteed | Professional RSVP Speed Reading App">
+    <meta property="og:description" content="Read up to 5x faster with ReadSteed. Try the distraction-free RSVP speed reading experience today.">
+    <meta property="og:image" content="{{ url_for('static', filename='logo.png', _external=True) }}">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://readsteed-rsvp-production.up.railway.app/">
+    <meta property="twitter:title" content="ReadSteed | Professional RSVP Speed Reading App">
+    <meta property="twitter:description" content="Read up to 5x faster with ReadSteed. High-performance speed reading for students and professionals.">
+    <meta property="twitter:image" content="{{ url_for('static', filename='logo.png', _external=True) }}">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "ReadSteed",
+      "url": "https://readsteed-rsvp-production.up.railway.app/",
+      "logo": "https://readsteed-rsvp-production.up.railway.app/static/logo.png",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web, Mobile",
+      "about": "RSVP Speed Reading Tool",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">

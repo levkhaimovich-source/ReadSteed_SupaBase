@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Allow: /about
+
+Sitemap: https://readsteed-rsvp-production.up.railway.app/sitemap.xml

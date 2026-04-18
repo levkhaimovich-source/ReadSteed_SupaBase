@@ -17,6 +17,14 @@ init_db()
 def google_verification():
     return send_from_directory('.', 'googled4b34a2a2616e236.html')
 
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory('.', 'robots.txt')
+
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory('.', 'sitemap.xml')
+
 @app.route('/')
 def index():
     if 'user_id' not in session:
