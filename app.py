@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 import os
 import secrets
 from database import (init_db, create_user, login, get_readings, 
@@ -12,6 +12,10 @@ app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(16))
 
 # Ensure database is initialized
 init_db()
+
+@app.route('/googled4b34a2a2616e236.html')
+def google_verification():
+    return send_from_directory('.', 'googled4b34a2a2616e236.html')
 
 @app.route('/')
 def index():
