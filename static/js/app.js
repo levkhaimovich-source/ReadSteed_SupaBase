@@ -1,15 +1,27 @@
 /**
- * ReadSteed RSVP Web Engine
+ * ReadSteed RSVP Web Engine — v2
+ * Features: Chunk-aware display, adaptive timing, word-skip with hold acceleration, PDF upload
  */
 
 class RSVPReader {
     constructor() {
-        this.words = [];
-        this.currentIndex = 0;
+        this.chunks = [];           // Array of chunk objects from /api/tokenize
+        this.currentIndex = 0;      // Current chunk index
         this.isPlaying = false;
         this.wpm = 300;
         this.timer = null;
         this.currentReadingId = null;
+
+        // v2 feature flags
+        this.smartPacingEnabled = true;
+        this.chunkingEnabled = true;
+
+        // Skip hold-acceleration state
+        this._skipRAF = null;
+        this._skipDirection = 0;
+        this._skipStartTime = 0;
+        this._skipLastFire = 0;
+        this._keyHeld = null;
 
         // DOM Elements
         this.prefixEl = document.getElementById('prefix');
@@ -24,7 +36,26 @@ class RSVPReader {
         this.inputContainer = document.getElementById('input-container');
         this.displayContainer = document.getElementById('display-container');
 
+        this._loadToggles();
         this.init();
+    }
+
+    // --- Persist toggle states to localStorage ---
+    _loadToggles() {
+        const sp = localStorage.getItem('rs_smartPacing');
+        const ch = localStorage.getItem('rs_chunking');
+        if (sp !== null) this.smartPacingEnabled = sp === 'true';
+        if (ch !== null) this.chunkingEnabled = ch === 'true';
+
+        const spEl = document.getElementById('smart-pacing-toggle');
+        const chEl = document.getElementById('chunking-toggle');
+        if (spEl) spEl.checked = this.smartPacingEnabled;
+        if (chEl) chEl.checked = this.chunkingEnabled;
+    }
+
+    _saveToggles() {
+        localStorage.setItem('rs_smartPacing', this.smartPacingEnabled);
+        localStorage.setItem('rs_chunking', this.chunkingEnabled);
     }
 
     init() {
@@ -38,21 +69,18 @@ class RSVPReader {
         document.getElementById('reset-btn').addEventListener('click', () => this.reset());
         document.getElementById('exit-reader-btn').addEventListener('click', () => this.exitReader());
         document.getElementById('new-reading-btn').addEventListener('click', () => this.newReading());
-        document.getElementById('skip-back-btn').addEventListener('click', () => this.skipWords(-5));
-        document.getElementById('skip-fwd-btn').addEventListener('click', () => this.skipWords(5));
-        
+
+        // Skip buttons — single click + hold acceleration
+        this._initSkipButton('skip-back-btn', -1);
+        this._initSkipButton('skip-fwd-btn', 1);
+
         this.initFeatures();
 
         // Auth
         const showLoginBtn = document.getElementById('show-login-btn');
-        if (showLoginBtn) {
-            showLoginBtn.addEventListener('click', () => this.showAuthModal(true));
-        }
-        
+        if (showLoginBtn) showLoginBtn.addEventListener('click', () => this.showAuthModal(true));
         const closeBtn = document.getElementById('close-modal');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.showAuthModal(false));
-        }
+        if (closeBtn) closeBtn.addEventListener('click', () => this.showAuthModal(false));
 
         document.getElementById('show-signup').addEventListener('click', (e) => {
             e.preventDefault();
@@ -70,30 +98,17 @@ class RSVPReader {
 
         document.getElementById('do-login-btn').addEventListener('click', () => this.handleLogin());
         document.getElementById('do-signup-btn').addEventListener('click', () => this.handleSignup());
-        
         const logoutBtn = document.getElementById('logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => this.handleLogout());
-        }
+        if (logoutBtn) logoutBtn.addEventListener('click', () => this.handleLogout());
 
         // Sidebar toggle & Overlay
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
-        
-        // Auto-close on mobile load
-        if (window.innerWidth <= 768) {
-            sidebar.classList.add('closed');
-        }
-        
+        if (window.innerWidth <= 768) sidebar.classList.add('closed');
+
         const toggleSidebar = () => {
             const isClosed = sidebar.classList.toggle('closed');
-            if (overlay) {
-                if (isClosed) {
-                    overlay.classList.remove('active');
-                } else {
-                    overlay.classList.add('active');
-                }
-            }
+            if (overlay) overlay.classList.toggle('active', !isClosed);
         };
 
         document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
@@ -107,6 +122,76 @@ class RSVPReader {
         this.loadReadings();
     }
 
+    // ===================== SKIP HOLD-ACCELERATION =====================
+
+    _initSkipButton(btnId, direction) {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+
+        const startHold = (e) => {
+            e.preventDefault();
+            btn.classList.add('pressing');
+            this._startSkipRepeat(direction);
+        };
+        const stopHold = (e) => {
+            e.preventDefault();
+            btn.classList.remove('pressing');
+            this._stopSkipRepeat();
+        };
+
+        btn.addEventListener('pointerdown', startHold);
+        btn.addEventListener('pointerup', stopHold);
+        btn.addEventListener('pointerleave', stopHold);
+        btn.addEventListener('pointercancel', stopHold);
+        // Prevent context menu on long press (mobile)
+        btn.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
+
+    _startSkipRepeat(direction) {
+        this._stopSkipRepeat();
+        this._skipDirection = direction;
+        this._skipStartTime = performance.now();
+        this._skipLastFire = 0;
+        // Fire immediately on first press
+        this._doSingleSkip(direction);
+        this._skipRAF = requestAnimationFrame((t) => this._skipLoop(t));
+    }
+
+    _skipLoop(timestamp) {
+        const elapsed = timestamp - this._skipStartTime;
+        // Acceleration curve: start at ~150ms interval (≈7/sec), ramp to ~35ms (≈28/sec)
+        const maxInterval = 150;
+        const minInterval = 35;
+        const rampDuration = 1200; // ms to reach full speed
+        const progress = Math.min(elapsed / rampDuration, 1);
+        const interval = maxInterval - (maxInterval - minInterval) * (progress * progress); // ease-in
+        const sinceLast = timestamp - this._skipLastFire;
+
+        if (sinceLast >= interval) {
+            this._doSingleSkip(this._skipDirection);
+            this._skipLastFire = timestamp;
+        }
+
+        this._skipRAF = requestAnimationFrame((t) => this._skipLoop(t));
+    }
+
+    _stopSkipRepeat() {
+        if (this._skipRAF) {
+            cancelAnimationFrame(this._skipRAF);
+            this._skipRAF = null;
+        }
+        this._skipDirection = 0;
+    }
+
+    _doSingleSkip(direction) {
+        if (!this.chunks.length) return;
+        this.currentIndex = Math.max(0, Math.min(this.chunks.length - 1, this.currentIndex + direction));
+        this.updateProgress();
+        this.displayWord();
+    }
+
+    // ===================== FEATURES INIT =====================
+
     initFeatures() {
         // Stats
         const textStats = document.getElementById('text-stats');
@@ -117,20 +202,22 @@ class RSVPReader {
             if (textStats) textStats.textContent = `${words} words | ~${mins} min read`;
         };
         this.textInput.addEventListener('input', this.updateStats);
-        
-        // Ensure WPM slider update syncs stats
         this.wpmSlider.addEventListener('input', (e) => {
             this.wpm = parseInt(e.target.value);
             this.wpmValue.textContent = this.wpm;
             this.updateStats();
         });
 
-        // File Upload
+        // File Upload (txt + pdf)
         const fileUpload = document.getElementById('file-upload');
         if (fileUpload) {
             fileUpload.addEventListener('change', (e) => {
                 const file = e.target.files[0];
-                if (file) {
+                if (!file) return;
+
+                if (file.name.toLowerCase().endsWith('.pdf')) {
+                    this._handlePDFUpload(file);
+                } else {
                     const reader = new FileReader();
                     reader.onload = (evt) => {
                         this.textInput.value = evt.target.result;
@@ -138,8 +225,35 @@ class RSVPReader {
                     };
                     reader.readAsText(file);
                 }
-                // Reset file input in case same file selected again
                 e.target.value = '';
+            });
+        }
+
+        // Toggle: Smart Pacing
+        const spToggle = document.getElementById('smart-pacing-toggle');
+        if (spToggle) {
+            spToggle.addEventListener('change', (e) => {
+                this.smartPacingEnabled = e.target.checked;
+                this._saveToggles();
+            });
+        }
+
+        // Toggle: Chunking — requires re-tokenization
+        const chToggle = document.getElementById('chunking-toggle');
+        if (chToggle) {
+            chToggle.addEventListener('change', async (e) => {
+                this.chunkingEnabled = e.target.checked;
+                this._saveToggles();
+                // Re-tokenize if we have text loaded
+                if (this.textInput.value.trim() && !this.displayContainer.classList.contains('hidden')) {
+                    const wasPlaying = this.isPlaying;
+                    this.togglePlay(false);
+                    await this._tokenize(this.textInput.value.trim());
+                    this.currentIndex = Math.min(this.currentIndex, this.chunks.length - 1);
+                    this.updateProgress();
+                    this.displayWord();
+                    if (wasPlaying) this.togglePlay(true);
+                }
             });
         }
 
@@ -149,48 +263,22 @@ class RSVPReader {
         const themePreset = document.getElementById('theme-preset');
         const fontPreset = document.getElementById('font-preset');
 
-        const validateColorName = (val) => /^[a-zA-Z]+$/.test(val);
+        if (bgColorInput) bgColorInput.addEventListener('change', (e) => { document.body.style.backgroundColor = e.target.value.trim() || ''; });
+        if (textColorInput) textColorInput.addEventListener('change', (e) => { document.body.style.color = e.target.value.trim() || ''; });
+        if (themePreset) themePreset.addEventListener('change', (e) => {
+            document.body.classList.remove('theme-dark', 'theme-light', 'theme-sepia');
+            document.body.classList.add(`theme-${e.target.value}`);
+        });
+        if (fontPreset) fontPreset.addEventListener('change', (e) => { document.body.style.fontFamily = e.target.value; });
 
-        if (bgColorInput) {
-            bgColorInput.addEventListener('change', (e) => {
-                const val = e.target.value.trim();
-                document.body.style.backgroundColor = val || '';
-            });
-        }
-
-        if (textColorInput) {
-            textColorInput.addEventListener('change', (e) => {
-                const val = e.target.value.trim();
-                document.body.style.color = val || '';
-            });
-        }
-
-        if (themePreset) {
-            themePreset.addEventListener('change', (e) => {
-                document.body.classList.remove('theme-dark', 'theme-light', 'theme-sepia');
-                document.body.classList.add(`theme-${e.target.value}`);
-            });
-        }
-
-        if (fontPreset) {
-            fontPreset.addEventListener('change', (e) => {
-                document.body.style.fontFamily = e.target.value;
-            });
-        }
-
-        // Focus Mode (Native Fullscreen API)
+        // Focus Mode
         const focusToggleBtn = document.getElementById('focus-mode-toggle');
-        if (focusToggleBtn) {
-            focusToggleBtn.addEventListener('click', () => {
-                this.toggleFocusMode();
-            });
-        }
-        
-        // Handle native fullscreen exiting (e.g. user presses ESC or back gesture)
+        if (focusToggleBtn) focusToggleBtn.addEventListener('click', () => this.toggleFocusMode());
+
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 document.body.classList.remove('focus-mode-active');
-                document.body.style.overflow = ''; // Restore scroll
+                document.body.style.overflow = '';
             }
         });
         document.addEventListener('webkitfullscreenchange', () => {
@@ -200,18 +288,13 @@ class RSVPReader {
             }
         });
 
-        // Mobile tap-to-pause overlay (active only in focus mode)
+        // Tap-to-pause overlay
         const tapOverlay = document.getElementById('focus-tap-overlay');
-        if (tapOverlay) {
-            tapOverlay.addEventListener('click', () => this.togglePlay());
-        }
+        if (tapOverlay) tapOverlay.addEventListener('click', () => this.togglePlay());
 
         // Global Keyboard Shortcuts
         document.addEventListener('keydown', (e) => {
-            // Only trigger if we are actively in the reader display
             if (this.displayContainer.classList.contains('hidden')) return;
-            
-            // Ignore if user is typing in a text input (e.g. settings)
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
 
             switch(e.code) {
@@ -237,11 +320,17 @@ class RSVPReader {
                     break;
                 case 'ArrowLeft':
                     e.preventDefault();
-                    this.skipWords(-5);
+                    if (!this._keyHeld) {
+                        this._keyHeld = 'ArrowLeft';
+                        this._startSkipRepeat(-1);
+                    }
                     break;
                 case 'ArrowRight':
                     e.preventDefault();
-                    this.skipWords(5);
+                    if (!this._keyHeld) {
+                        this._keyHeld = 'ArrowRight';
+                        this._startSkipRepeat(1);
+                    }
                     break;
                 case 'Escape':
                     e.preventDefault();
@@ -253,19 +342,59 @@ class RSVPReader {
                     break;
             }
         });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === this._keyHeld) {
+                this._stopSkipRepeat();
+                this._keyHeld = null;
+            }
+        });
     }
+
+    // ===================== PDF UPLOAD =====================
+
+    async _handlePDFUpload(file) {
+        this.showHUD('Parsing PDF…', 2000);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const resp = await fetch('/api/parse-pdf', { method: 'POST', body: formData });
+            const data = await resp.json();
+            if (data.success) {
+                this.textInput.value = data.text;
+                this.updateStats();
+                this.showHUD('PDF loaded ✓');
+            } else {
+                this.showHUD(data.message || 'PDF parsing failed', 2500);
+            }
+        } catch (e) {
+            console.error('PDF upload error', e);
+            this.showHUD('Failed to upload PDF', 2500);
+        }
+    }
+
+    // ===================== TOKENIZATION =====================
+
+    async _tokenize(text) {
+        const resp = await fetch('/api/tokenize', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ text, chunking: this.chunkingEnabled })
+        });
+        this.chunks = await resp.json();
+    }
+
+    // ===================== READER LIFECYCLE =====================
 
     async loadReadings() {
         try {
             const resp = await fetch('/api/readings');
             const readings = await resp.json();
             const list = document.getElementById('readings-list');
-            
             if (readings.length === 0) {
                 list.innerHTML = '<p class="sidebar-info">No readings saved yet.</p>';
                 return;
             }
-
             list.innerHTML = readings.map(r => `
                 <div class="reading-item ${this.currentReadingId === r.id ? 'active' : ''}" onclick="app.loadReading(${r.id})">
                     <h3>${r.title}</h3>
@@ -284,8 +413,8 @@ class RSVPReader {
             this.currentReadingId = id;
             this.textInput.value = data.text;
             this.currentIndex = data.index || 0;
-            this.loadReadings(); // Update active state
-            this.startReader(true); // Switch to display mode but don't play
+            this.loadReadings();
+            this.startReader(true);
         } catch (e) {
             console.error("Failed to load reading", e);
         }
@@ -295,18 +424,12 @@ class RSVPReader {
         const text = this.textInput.value.trim();
         if (!text) return;
 
-        // Tokenize 
-        const resp = await fetch('/api/tokenize', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({text})
-        });
-        this.words = await resp.json();
+        await this._tokenize(text);
 
         this.inputContainer.classList.add('hidden');
         this.displayContainer.classList.remove('hidden');
 
-        if (this.currentIndex >= this.words.length) this.currentIndex = 0;
+        if (this.currentIndex >= this.chunks.length) this.currentIndex = 0;
         this.updateProgress();
         this.displayWord();
 
@@ -315,7 +438,6 @@ class RSVPReader {
             this.showPlaceholder("Ready");
             setTimeout(() => this.togglePlay(true), 1000);
         }
-
     }
 
     exitReader() {
@@ -330,24 +452,22 @@ class RSVPReader {
         this.currentReadingId = null;
         this.textInput.value = '';
         this.currentIndex = 0;
-        this.words = [];
+        this.chunks = [];
     }
 
     togglePlay(forceValue) {
         this.isPlaying = forceValue !== undefined ? forceValue : !this.isPlaying;
 
-        // Auto-reset if playing but already at the end
-        if (this.isPlaying && this.currentIndex >= this.words.length) {
+        if (this.isPlaying && this.currentIndex >= this.chunks.length) {
             this.currentIndex = 0;
             this.updateProgress();
         }
 
         this.playPauseBtn.textContent = this.isPlaying ? 'Pause' : 'Play';
-        // Show on-screen HUD (only when user actively triggers, not during auto-run internals)
         if (forceValue === undefined) {
             this.showHUD(this.isPlaying ? '▶  Play' : '⏸  Pause');
         }
-        
+
         if (this.isPlaying) {
             this.run();
         } else {
@@ -356,40 +476,70 @@ class RSVPReader {
         }
     }
 
+    // ===================== RUN LOOP — ADAPTIVE TIMING =====================
+
     run() {
-        if (!this.isPlaying || this.currentIndex >= this.words.length) {
+        if (!this.isPlaying || this.currentIndex >= this.chunks.length) {
             this.togglePlay(false);
             return;
         }
 
-        const wordData = this.words[this.currentIndex];
+        const chunk = this.chunks[this.currentIndex];
         this.displayWord();
-        
+
         this.currentIndex++;
         this.updateProgress();
 
         if (this.currentIndex % 25 === 0) this.autoSave();
 
-        const baseDelay = (60 / this.wpm) * 1000;
-        const delay = baseDelay * (wordData.delay_multiplier || 1.0);
+        let delay;
+        if (this.smartPacingEnabled) {
+            // Adaptive: use pre-computed ms, scaled by WPM ratio (300 = baseline)
+            delay = chunk.display_time_ms * (300 / this.wpm);
+        } else {
+            // Legacy constant timing with delay multiplier
+            const baseDelay = (60 / this.wpm) * 1000;
+            delay = baseDelay * (chunk.delay_multiplier || 1.0);
+        }
 
         this.timer = setTimeout(() => this.run(), delay);
     }
 
+    // ===================== DISPLAY =====================
+
     displayWord() {
-        if (this.currentIndex >= this.words.length) {
+        if (this.currentIndex >= this.chunks.length) {
             this.showPlaceholder("Finished");
             this.togglePlay(false);
             return;
         }
 
-        const wordData = this.words[this.currentIndex];
-        const word = wordData.word;
-        const orp = this.getORPIndex(word);
-        
-        this.prefixEl.textContent = word.substring(0, orp);
-        this.focusEl.textContent = word[orp];
-        this.suffixEl.textContent = word.substring(orp + 1);
+        const chunk = this.chunks[this.currentIndex];
+        const display = chunk.display;
+
+        // For multi-word chunks, find the longest word for ORP
+        // For single words, use as-is
+        let orpWord = display;
+        if (chunk.words && chunk.words.length > 1) {
+            orpWord = chunk.words.reduce((a, b) => a.length >= b.length ? a : b);
+        }
+
+        const orp = this.getORPIndex(orpWord);
+
+        if (chunk.words && chunk.words.length > 1) {
+            // Multi-word chunk: show entire text, highlight ORP of longest word
+            // Find where the longest word starts in the display string
+            const wordStart = display.indexOf(orpWord);
+            const orpPos = wordStart + orp;
+            this.prefixEl.textContent = display.substring(0, orpPos);
+            this.focusEl.textContent = display[orpPos] || '';
+            this.suffixEl.textContent = display.substring(orpPos + 1);
+        } else {
+            // Single word — standard ORP split
+            this.prefixEl.textContent = display.substring(0, orp);
+            this.focusEl.textContent = display[orp] || '';
+            this.suffixEl.textContent = display.substring(orp + 1);
+        }
     }
 
     showPlaceholder(text) {
@@ -397,40 +547,33 @@ class RSVPReader {
         this.focusEl.textContent = text;
         this.suffixEl.textContent = "";
         this.focusEl.style.color = "var(--text-secondary)";
-        setTimeout(() => {
-            this.focusEl.style.color = "var(--focus-color)";
-        }, 1000);
+        setTimeout(() => { this.focusEl.style.color = "var(--focus-color)"; }, 1000);
     }
 
-    // --- Focus Mode Logic ---
+    // ===================== FOCUS MODE =====================
+
     toggleFocusMode() {
         const isActive = document.body.classList.contains('focus-mode-active');
         if (!isActive) {
-            // Enter Fullscreen
             const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(err => console.warn(err));
-            } else if (elem.webkitRequestFullscreen) { /* Safari */
-                elem.webkitRequestFullscreen();
-            }
+            if (elem.requestFullscreen) elem.requestFullscreen().catch(err => console.warn(err));
+            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
             document.body.classList.add('focus-mode-active');
-            document.body.style.overflow = 'hidden'; // Lock scroll completely
+            document.body.style.overflow = 'hidden';
         } else {
             this.exitFocusMode();
         }
     }
 
     exitFocusMode() {
-        if (document.exitFullscreen && document.fullscreenElement) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen && document.webkitFullscreenElement) {
-            document.webkitExitFullscreen();
-        }
+        if (document.exitFullscreen && document.fullscreenElement) document.exitFullscreen();
+        else if (document.webkitExitFullscreen && document.webkitFullscreenElement) document.webkitExitFullscreen();
         document.body.classList.remove('focus-mode-active');
         document.body.style.overflow = '';
     }
 
-    // --- HUD Toast (on-screen feedback) ---
+    // ===================== HUD =====================
+
     showHUD(text, duration = 750) {
         const hud = document.getElementById('hud-toast');
         if (!hud) return;
@@ -440,16 +583,7 @@ class RSVPReader {
         this._hudTimer = setTimeout(() => hud.classList.remove('visible'), duration);
     }
 
-    // --- Skip words equivalent to N seconds at current WPM ---
-    skipWords(seconds) {
-        if (!this.words.length) return;
-        const delta = Math.max(1, Math.round(this.wpm / 60 * Math.abs(seconds))) * Math.sign(seconds);
-        this.currentIndex = Math.max(0, Math.min(this.words.length - 1, this.currentIndex + delta));
-        this.updateProgress();
-        this.displayWord();
-        this.showHUD(seconds > 0 ? '+5s ▶▶' : '◀◀ -5s');
-    }
-
+    // ===================== HELPERS =====================
 
     getORPIndex(word) {
         const length = word.length;
@@ -460,19 +594,30 @@ class RSVPReader {
         return 4;
     }
 
+    _getTotalWords() {
+        return this.chunks.reduce((sum, c) => sum + (c.word_count || 1), 0);
+    }
+
+    _getWordsUpTo(index) {
+        let count = 0;
+        for (let i = 0; i < index && i < this.chunks.length; i++) {
+            count += (this.chunks[i].word_count || 1);
+        }
+        return count;
+    }
+
     updateProgress() {
-        const total = this.words.length;
-        const percent = total > 0 ? (this.currentIndex / total) * 100 : 0;
+        const totalWords = this._getTotalWords();
+        const wordsRead = this._getWordsUpTo(this.currentIndex);
+        const percent = totalWords > 0 ? (wordsRead / totalWords) * 100 : 0;
         this.progressFill.style.width = `${percent}%`;
-        this.progressText.textContent = `${this.currentIndex} / ${total} words`;
+        this.progressText.textContent = `${wordsRead} / ${totalWords} words`;
     }
 
     async autoSave() {
-        if (!this.words.length) return;
-        
+        if (!this.chunks.length) return;
         const text = this.textInput.value;
-        const title = this.words.slice(0, 4).map(w => w.word).join(' ') + '...';
-        
+        const title = this.chunks.slice(0, 4).map(c => c.display).join(' ') + '...';
         try {
             const resp = await fetch('/api/readings', {
                 method: 'POST',
@@ -494,7 +639,8 @@ class RSVPReader {
         }
     }
 
-    // Modal & Auth
+    // ===================== AUTH =====================
+
     showAuthModal(show) {
         const modal = document.getElementById('auth-modal');
         if (show) modal.classList.remove('hidden');
@@ -504,25 +650,20 @@ class RSVPReader {
     async handleLogin() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
-        
         const resp = await fetch('/api/auth/login', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({email, password})
         });
         const data = await resp.json();
-        if (data.success) {
-            window.location.reload();
-        } else {
-            alert(data.message);
-        }
+        if (data.success) window.location.reload();
+        else alert(data.message);
     }
 
     async handleSignup() {
         const username = document.getElementById('signup-username').value;
         const email = document.getElementById('signup-email').value;
         const password = document.getElementById('signup-password').value;
-        
         const resp = await fetch('/api/auth/signup', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},

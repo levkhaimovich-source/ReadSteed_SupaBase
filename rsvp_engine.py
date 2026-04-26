@@ -58,3 +58,122 @@ def process_word_for_display(word: str) -> tuple[str, str, str]:
     suffix = word[idx+1:]
     
     return prefix, focus_char, suffix
+
+
+# ---------------------------------------------------------------------------
+# v2: Adaptive Timing & Intelligent Chunking
+# ---------------------------------------------------------------------------
+
+# Common short function words eligible for chunking
+FUNCTION_WORDS = frozenset({
+    "the", "a", "an", "to", "of", "in", "on", "at", "by", "is", "it",
+    "and", "or", "but", "for", "as", "if", "so", "no", "not", "be",
+    "do", "he", "she", "we", "my", "up", "go", "its", "his", "her",
+    "our", "are", "was", "has", "had", "did", "can", "may", "all",
+    "who", "how", "out", "own", "any", "too", "yet", "nor", "per",
+})
+
+# Maximum characters for a word to be chunk-eligible
+_CHUNK_CHAR_LIMIT = 4
+# Maximum words in a single chunk
+_MAX_CHUNK_SIZE = 3
+
+
+def compute_adaptive_timing(word: str, base_time_ms: int = 150,
+                            length_factor_ms: int = 25) -> int:
+    """
+    Compute a natural display duration in milliseconds for a single word.
+
+    The duration scales with word length and adds penalties for punctuation,
+    then is clamped to [100, 450] ms so the rhythm never feels jarring.
+    """
+    if not word:
+        return base_time_ms
+
+    # Strip trailing punctuation for length calculation
+    clean = word.rstrip(".,;:!?\"'""''—–-)([]{}…")
+    length = max(len(clean), 1)
+
+    ms = base_time_ms + length_factor_ms * length
+
+    # Punctuation penalties
+    if word and word[-1] in '.!?':
+        ms += 100
+    elif word and word[-1] in ',;:':
+        ms += 60
+
+    # Clamp
+    return max(100, min(450, ms))
+
+
+def _has_trailing_punctuation(word: str) -> bool:
+    """Check if a word ends with phrase-ending punctuation."""
+    return bool(word) and word[-1] in '.,;:!?'
+
+
+def _is_chunk_eligible(word: str) -> bool:
+    """A word is chunk-eligible if it's short and is a common function word."""
+    clean = word.lower().rstrip(".,;:!?\"'""''—–-)([]{}…")
+    return len(clean) <= _CHUNK_CHAR_LIMIT and clean in FUNCTION_WORDS
+
+
+def chunk_words(words: list[str]) -> list[dict]:
+    """
+    Group a flat list of word strings into display chunks.
+
+    Returns a list of chunk dicts, each containing:
+        display        – the text to show on screen (words joined by space)
+        words          – list of original word strings in the chunk
+        word_count     – how many raw words the chunk spans
+        display_time_ms – adaptive timing for the chunk (sum with 10% reduction for multi-word)
+        delay_multiplier – legacy field for backward compat
+    """
+    chunks: list[dict] = []
+    i = 0
+    n = len(words)
+
+    while i < n:
+        w = words[i]
+
+        # Try to build a multi-word chunk starting at i
+        if _is_chunk_eligible(w) and not _has_trailing_punctuation(w):
+            group = [w]
+            j = i + 1
+            while j < n and len(group) < _MAX_CHUNK_SIZE:
+                nw = words[j]
+                if _is_chunk_eligible(nw):
+                    group.append(nw)
+                    if _has_trailing_punctuation(nw):
+                        j += 1
+                        break  # punctuation ends the chunk
+                    j += 1
+                else:
+                    break
+
+            # Only actually chunk if we collected >1 word
+            if len(group) > 1:
+                total_ms = sum(compute_adaptive_timing(gw) for gw in group)
+                # 10 % reduction for multi-word flow
+                total_ms = int(total_ms * 0.9)
+                total_ms = max(100, min(600, total_ms))
+                chunks.append({
+                    "display": " ".join(group),
+                    "words": group,
+                    "word_count": len(group),
+                    "display_time_ms": total_ms,
+                    "delay_multiplier": get_delay_multiplier(group[-1]),
+                })
+                i = j
+                continue
+
+        # Single-word chunk (either not eligible or only one word collected)
+        chunks.append({
+            "display": w,
+            "words": [w],
+            "word_count": 1,
+            "display_time_ms": compute_adaptive_timing(w),
+            "delay_multiplier": get_delay_multiplier(w),
+        })
+        i += 1
+
+    return chunks

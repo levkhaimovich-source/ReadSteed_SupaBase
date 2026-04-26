@@ -105,6 +105,21 @@
                         <option value="'Courier New'">Courier New</option>
                     </select>
                 </div>
+                <h3 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 10px;">Reading Modes</h3>
+                <div class="setting-item" style="margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary);">Smart Pacing</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="smart-pacing-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item" style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                    <label style="font-size: 0.8rem; color: var(--text-secondary);">Word Chunking</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="chunking-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
             </div>
 
             <div style="padding: 16px; border-bottom: 1px solid var(--border-color);">
@@ -112,7 +127,7 @@
                 <div style="font-size: 0.8rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 7px; line-height: 1.4;">
                     <div><kbd class="kbd">Space</kbd> &nbsp;Play / Pause</div>
                     <div><kbd class="kbd">&uarr;</kbd> <kbd class="kbd">&darr;</kbd> &nbsp;Speed &plusmn;10 WPM</div>
-                    <div><kbd class="kbd">&larr;</kbd> <kbd class="kbd">&rarr;</kbd> &nbsp;Skip &plusmn;5 seconds</div>
+                    <div><kbd class="kbd">&larr;</kbd> <kbd class="kbd">&rarr;</kbd> &nbsp;Skip &plusmn;1 word</div>
                     <div><kbd class="kbd">Esc</kbd> &nbsp;Exit / Leave Focus</div>
                 </div>
             </div>
@@ -156,8 +171,8 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: var(--text-secondary); font-size: 0.9rem;">
                         <span id="text-stats">0 words | 0 min read</span>
                         <label class="action-btn secondary" style="cursor: pointer; padding: 6px 12px; font-size: 0.9rem; border: 1px solid var(--border-color); background: transparent; border-radius: 6px; color: var(--text-primary);">
-                            Upload .txt
-                            <input type="file" id="file-upload" accept=".txt" style="display: none;">
+                            Upload .txt / .pdf
+                            <input type="file" id="file-upload" accept=".txt,.pdf" style="display: none;">
                         </label>
                     </div>
 
@@ -188,8 +203,8 @@
 
                     <div class="reader-controls">
                         <button id="play-pause-btn" class="control-btn">Play</button>
-                        <button id="skip-back-btn" class="control-btn secondary" title="Skip back 5 seconds" style="min-width: 70px;">&#171; 5s</button>
-                        <button id="skip-fwd-btn" class="control-btn secondary" title="Skip forward 5 seconds" style="min-width: 70px;">5s &#187;</button>
+                        <button id="skip-back-btn" class="control-btn secondary" title="Skip back 1 word (hold to accelerate)" style="min-width: 70px;">&#171; 1</button>
+                        <button id="skip-fwd-btn" class="control-btn secondary" title="Skip forward 1 word (hold to accelerate)" style="min-width: 70px;">1 &#187;</button>
                         <button id="reset-btn" class="control-btn secondary">Reset</button>
                         <div class="wpm-control">
                             <label for="wpm-slider">Speed: <span id="wpm-value">300</span> WPM</label>

@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 import os
+import io
+import re
 import secrets
 from database import (init_db, create_user, login, get_readings, 
                       get_reading_content, save_reading, delete_reading, 
                       save_user_settings, get_user_settings, log_reading_session)
-from rsvp_engine import tokenize_text, get_delay_multiplier
+from rsvp_engine import tokenize_text, get_delay_multiplier, chunk_words, compute_adaptive_timing
 
 app = Flask(__name__)
 # Use environment variable for secret key if available, otherwise fallback to a random one for local dev
@@ -169,15 +171,66 @@ def log_session_api():
 def tokenize_api():
     data = request.json
     text = data.get('text', '')
+    enable_chunking = data.get('chunking', True)
     words = tokenize_text(text)
-    # Include delay multipliers to avoid redundant client-side logic
-    processed_words = []
-    for w in words:
-        processed_words.append({
-            "word": w,
-            "delay_multiplier": get_delay_multiplier(w)
-        })
-    return jsonify(processed_words)
+    
+    if enable_chunking:
+        chunks = chunk_words(words)
+    else:
+        # No chunking: each word is its own chunk, with adaptive timing
+        chunks = []
+        for w in words:
+            chunks.append({
+                "display": w,
+                "words": [w],
+                "word_count": 1,
+                "display_time_ms": compute_adaptive_timing(w),
+                "delay_multiplier": get_delay_multiplier(w),
+            })
+    
+    return jsonify(chunks)
+
+
+@app.route('/api/parse-pdf', methods=['POST'])
+def parse_pdf_api():
+    """Accept a PDF file upload and return extracted plain text."""
+    if 'file' not in request.files:
+        return jsonify({"success": False, "message": "No file uploaded"}), 400
+    
+    pdf_file = request.files['file']
+    if not pdf_file.filename.lower().endswith('.pdf'):
+        return jsonify({"success": False, "message": "File must be a PDF"}), 400
+    
+    try:
+        from PyPDF2 import PdfReader
+        reader = PdfReader(io.BytesIO(pdf_file.read()))
+        
+        pages_text = []
+        for page in reader.pages:
+            page_text = page.extract_text()
+            if page_text:
+                pages_text.append(page_text.strip())
+        
+        if not pages_text:
+            return jsonify({
+                "success": False, 
+                "message": "Could not extract text from this PDF. It may be a scanned image."
+            }), 422
+        
+        full_text = "\n\n".join(pages_text)
+        
+        # Normalize whitespace: collapse runs of spaces, keep paragraph breaks
+        full_text = re.sub(r'[ \t]+', ' ', full_text)
+        full_text = re.sub(r'\n{3,}', '\n\n', full_text)
+        full_text = full_text.strip()
+        
+        return jsonify({"success": True, "text": full_text})
+    
+    except Exception as e:
+        return jsonify({
+            "success": False, 
+            "message": f"Failed to parse PDF: {str(e)}"
+        }), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
