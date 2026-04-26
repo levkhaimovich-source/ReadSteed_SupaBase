@@ -1069,7 +1069,44 @@ details[open] summary ~ * {
     .mobile-menu-btn {
         display: flex;
     }
+
     .footer-container {
         grid-template-columns: 1fr;
     }
+}
+
+/* --- Extension Mode --- */
+body.extension-mode {
+    background: transparent !important;
+}
+
+body.extension-mode .sidebar {
+    display: none !important;
+}
+
+body.extension-mode .top-bar {
+    display: none !important;
+}
+
+body.extension-mode .app-container {
+    background: transparent !important;
+}
+
+body.extension-mode .main-content {
+    background: transparent !important;
+    justify-content: center;
+    align-items: center;
+}
+
+body.extension-mode .reader-section {
+    padding: 0;
+    align-items: center;
+    max-width: 900px;
+    width: 100%;
+}
+
+body.extension-mode .glass-panel {
+    background: rgba(15, 23, 42, 0.95); /* Deep dark background for readability */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
 }

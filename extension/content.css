@@ -1,0 +1,67 @@
+/* Floating "Read ⚡" Button */
+#readsteed-floating-btn {
+  position: absolute;
+  z-index: 2147483647;
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: transform 0.15s ease, background 0.15s ease;
+  user-select: none;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+
+#readsteed-floating-btn.rs-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+#readsteed-floating-btn:hover {
+  background: #2563eb;
+  transform: scale(1.05);
+}
+
+#readsteed-floating-btn:active {
+  transform: scale(0.95);
+}
+
+/* Fullscreen Overlay Container */
+#readsteed-overlay-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2147483647;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#readsteed-overlay-container.rs-visible {
+  opacity: 1;
+}
+
+/* Iframe inside Overlay */
+#readsteed-iframe {
+  width: 100vw;
+  height: 100vh;
+  border: none;
+  background: transparent;
+}

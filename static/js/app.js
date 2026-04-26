@@ -59,6 +59,20 @@ class RSVPReader {
     }
 
     init() {
+        // --- Extension Integration ---
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('extension') === 'true') {
+            document.body.classList.add('extension-mode');
+        }
+
+        window.addEventListener("message", (event) => {
+            if (event.data && event.data.type === "RSVP_START_READER") {
+                this.textInput.value = event.data.text;
+                this.updateStats();
+                this.startReader();
+            }
+        });
+
         this.wpmSlider.addEventListener('input', (e) => {
             this.wpm = parseInt(e.target.value);
             this.wpmValue.textContent = this.wpm;
@@ -479,6 +493,11 @@ class RSVPReader {
         this.displayContainer.classList.add('hidden');
         this.inputContainer.classList.remove('hidden');
         this.autoSave();
+        
+        // Notify extension to close overlay
+        if (window.parent !== window) {
+            window.parent.postMessage({ type: "RSVP_CLOSE_OVERLAY" }, "*");
+        }
     }
 
     newReading() {
