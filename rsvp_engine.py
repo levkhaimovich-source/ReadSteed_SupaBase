@@ -79,19 +79,20 @@ _CHUNK_CHAR_LIMIT = 4
 _MAX_CHUNK_SIZE = 3
 
 
-def compute_adaptive_timing(word: str, base_time_ms: int = 150,
-                            length_factor_ms: int = 25) -> int:
+def compute_adaptive_timing(word: str, base_time_ms: int = 140,
+                            length_factor_ms: int = 35,
+                            is_sentence_start: bool = False) -> int:
     """
     Compute a natural display duration in milliseconds for a single word.
 
-    The duration scales with word length and adds penalties for punctuation,
-    then is clamped to [100, 450] ms so the rhythm never feels jarring.
+    The duration scales with word length, adds penalties for punctuation
+    and proper nouns, then is clamped to [100, 550] ms.
     """
     if not word:
         return base_time_ms
 
     # Strip trailing punctuation for length calculation
-    clean = word.rstrip(".,;:!?\"'""''—–-)([]{}…")
+    clean = word.rstrip(".,;:!?\"'\u201c\u201d\u2018\u2019\u2014\u2013-)([]{}…")
     length = max(len(clean), 1)
 
     ms = base_time_ms + length_factor_ms * length
@@ -102,8 +103,13 @@ def compute_adaptive_timing(word: str, base_time_ms: int = 150,
     elif word and word[-1] in ',;:':
         ms += 60
 
+    # Proper noun detection: capitalized word NOT at sentence start
+    if (clean and clean[0].isupper() and not is_sentence_start
+            and clean[0].isalpha() and len(clean) > 1):
+        ms = int(ms * 1.15)  # +15% for names/places
+
     # Clamp
-    return max(100, min(450, ms))
+    return max(100, min(550, ms))
 
 
 def _has_trailing_punctuation(word: str) -> bool:
@@ -131,6 +137,7 @@ def chunk_words(words: list[str]) -> list[dict]:
     chunks: list[dict] = []
     i = 0
     n = len(words)
+    sentence_start = True  # first word is always a sentence start
 
     while i < n:
         w = words[i]
@@ -152,10 +159,13 @@ def chunk_words(words: list[str]) -> list[dict]:
 
             # Only actually chunk if we collected >1 word
             if len(group) > 1:
-                total_ms = sum(compute_adaptive_timing(gw) for gw in group)
+                total_ms = sum(
+                    compute_adaptive_timing(gw, is_sentence_start=(idx == 0 and sentence_start))
+                    for idx, gw in enumerate(group)
+                )
                 # 10 % reduction for multi-word flow
                 total_ms = int(total_ms * 0.9)
-                total_ms = max(100, min(600, total_ms))
+                total_ms = max(100, min(700, total_ms))
                 chunks.append({
                     "display": " ".join(group),
                     "words": group,
@@ -163,6 +173,8 @@ def chunk_words(words: list[str]) -> list[dict]:
                     "display_time_ms": total_ms,
                     "delay_multiplier": get_delay_multiplier(group[-1]),
                 })
+                # Check if last word in group ends a sentence
+                sentence_start = _has_trailing_punctuation(group[-1]) and group[-1][-1] in '.!?'
                 i = j
                 continue
 
@@ -171,9 +183,11 @@ def chunk_words(words: list[str]) -> list[dict]:
             "display": w,
             "words": [w],
             "word_count": 1,
-            "display_time_ms": compute_adaptive_timing(w),
+            "display_time_ms": compute_adaptive_timing(w, is_sentence_start=sentence_start),
             "delay_multiplier": get_delay_multiplier(w),
         })
+        # Track sentence boundaries
+        sentence_start = _has_trailing_punctuation(w) and w[-1] in '.!?'
         i += 1
 
     return chunks

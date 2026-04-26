@@ -103,7 +103,7 @@ body {
 .sidebar-content {
     flex: 1;
     overflow-y: auto;
-    padding: 16px;
+    padding: 20px 16px;
 }
 
 .sidebar-footer {
@@ -472,6 +472,13 @@ select {
     cursor: pointer;
 }
 
+/* Ensure dropdown options have good contrast in all themes */
+select option {
+    background: #1e293b;
+    color: #f1f5f9;
+    padding: 8px 12px;
+}
+
 select:focus {
     border-color: var(--accent-blue) !important;
     outline: none;
@@ -546,13 +553,18 @@ select:focus {
 
 /* Reading List Items */
 .reading-item {
-    padding: 12px;
+    padding: 14px 12px;
     border-radius: 10px;
     background: rgba(255,255,255,0.03);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     cursor: pointer;
     transition: background 0.2s;
     border: 1px solid transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.reading-item:last-child {
+    border-bottom-color: transparent;
 }
 
 .reading-item:hover {

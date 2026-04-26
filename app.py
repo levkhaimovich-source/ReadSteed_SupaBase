@@ -179,14 +179,16 @@ def tokenize_api():
     else:
         # No chunking: each word is its own chunk, with adaptive timing
         chunks = []
+        sentence_start = True
         for w in words:
             chunks.append({
                 "display": w,
                 "words": [w],
                 "word_count": 1,
-                "display_time_ms": compute_adaptive_timing(w),
+                "display_time_ms": compute_adaptive_timing(w, is_sentence_start=sentence_start),
                 "delay_multiplier": get_delay_multiplier(w),
             })
+            sentence_start = bool(w) and w[-1] in '.!?'
     
     return jsonify(chunks)
 

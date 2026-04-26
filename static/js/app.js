@@ -185,9 +185,12 @@ class RSVPReader {
 
     _doSingleSkip(direction) {
         if (!this.chunks.length) return;
-        this.currentIndex = Math.max(0, Math.min(this.chunks.length - 1, this.currentIndex + direction));
-        this.updateProgress();
+        const newIndex = this.currentIndex + direction;
+        // Clamp to valid range
+        if (newIndex < 0 || newIndex >= this.chunks.length) return;
+        this.currentIndex = newIndex;
         this.displayWord();
+        this.updateProgress();
     }
 
     // ===================== FEATURES INIT =====================
