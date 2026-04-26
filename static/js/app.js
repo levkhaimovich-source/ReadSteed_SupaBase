@@ -151,7 +151,7 @@ class RSVPReader {
         this._stopSkipRepeat();
         this._skipDirection = direction;
         this._skipStartTime = performance.now();
-        this._skipLastFire = 0;
+        this._skipLastFire = this._skipStartTime;
         // Fire immediately on first press
         this._doSingleSkip(direction);
         this._skipRAF = requestAnimationFrame((t) => this._skipLoop(t));
@@ -266,13 +266,44 @@ class RSVPReader {
         const themePreset = document.getElementById('theme-preset');
         const fontPreset = document.getElementById('font-preset');
 
-        if (bgColorInput) bgColorInput.addEventListener('change', (e) => { document.body.style.backgroundColor = e.target.value.trim() || ''; });
-        if (textColorInput) textColorInput.addEventListener('change', (e) => { document.body.style.color = e.target.value.trim() || ''; });
+        if (bgColorInput) bgColorInput.addEventListener('change', (e) => { 
+            const val = e.target.value.trim();
+            if (val) {
+                document.documentElement.style.setProperty('--bg-dark', val);
+                document.documentElement.style.setProperty('--bg-sidebar', val); // Apply to sidebar as well
+            } else {
+                document.documentElement.style.removeProperty('--bg-dark');
+                document.documentElement.style.removeProperty('--bg-sidebar');
+            }
+        });
+        
+        if (textColorInput) textColorInput.addEventListener('change', (e) => { 
+            const val = e.target.value.trim();
+            if (val) {
+                document.documentElement.style.setProperty('--text-primary', val);
+                document.documentElement.style.setProperty('--text-secondary', val);
+            } else {
+                document.documentElement.style.removeProperty('--text-primary');
+                document.documentElement.style.removeProperty('--text-secondary');
+            }
+        });
+        
         if (themePreset) themePreset.addEventListener('change', (e) => {
             document.body.classList.remove('theme-dark', 'theme-light', 'theme-sepia');
             document.body.classList.add(`theme-${e.target.value}`);
+            // Reset custom colors when preset changes
+            if (bgColorInput) bgColorInput.value = '';
+            if (textColorInput) textColorInput.value = '';
+            document.documentElement.style.removeProperty('--bg-dark');
+            document.documentElement.style.removeProperty('--bg-sidebar');
+            document.documentElement.style.removeProperty('--text-primary');
+            document.documentElement.style.removeProperty('--text-secondary');
         });
-        if (fontPreset) fontPreset.addEventListener('change', (e) => { document.body.style.fontFamily = e.target.value; });
+        
+        if (fontPreset) fontPreset.addEventListener('change', (e) => { 
+            document.body.style.fontFamily = e.target.value; 
+            document.documentElement.style.setProperty('--font-custom', e.target.value);
+        });
 
         // Focus Mode
         const focusToggleBtn = document.getElementById('focus-mode-toggle');

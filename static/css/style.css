@@ -32,6 +32,10 @@
     box-sizing: border-box;
 }
 
+input, textarea, button, select {
+    font-family: var(--font-custom, inherit);
+}
+
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-dark);
