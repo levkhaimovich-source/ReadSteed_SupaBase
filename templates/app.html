@@ -59,13 +59,10 @@
                 <button id="new-reading-btn" class="icon-btn" title="New Reading" style="background: var(--accent-blue); color: white; width: 30px; height: 30px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">+</button>
             </div>
             
-            <div class="sidebar-nav" style="padding: 16px; border-bottom: 1px solid var(--border-color); flex-shrink: 0;">
+            <div class="sidebar-nav" style="padding: 16px; border-bottom: 1px solid var(--border-color);">
                 <a href="/about" class="sidebar-link" style="color: var(--accent-blue); text-decoration: none; font-weight: 600; display: block; margin-bottom: 15px;">About RSVP</a>
                 
-                <details>
-                    <summary style="font-size: 0.95rem; font-weight: 600; color: var(--text-primary); cursor: pointer; outline: none; margin-bottom: 10px; user-select: none;">Settings & Shortcuts</summary>
-                    <div style="margin-top: 15px;">
-                        <h3 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 10px;">Settings</h3>
+                <h3 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 10px;">Settings</h3>
                 <div class="setting-item" style="margin-bottom: 10px;">
                     <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Background Color</label>
                     <select id="bg-color-input" style="width: 100%; padding: 6px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-primary); font-size: 0.8rem;">
@@ -125,18 +122,24 @@
                 </div>
             </div>
 
+            <div style="padding: 16px; border-bottom: 1px solid var(--border-color);">
+                <h3 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 10px;">Keyboard Shortcuts</h3>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 7px; line-height: 1.4;">
+                    <div><kbd class="kbd">Space</kbd> &nbsp;Play / Pause</div>
+                    <div><kbd class="kbd">&uarr;</kbd> <kbd class="kbd">&darr;</kbd> &nbsp;Speed &plusmn;10 WPM</div>
+                    <div><kbd class="kbd">&larr;</kbd> <kbd class="kbd">&rarr;</kbd> &nbsp;Skip &plusmn;1 word</div>
+                    <div><kbd class="kbd">Esc</kbd> &nbsp;Exit / Leave Focus</div>
                 </div>
-                </details>
             </div>
 
-            <div class="sidebar-header" style="border-top: none; padding-bottom: 10px; flex-shrink: 0;">
+            <div class="sidebar-header" style="border-top: none;">
                 <h2>Your Library</h2>
             </div>
-            <div class="sidebar-content" id="readings-list" style="flex: 1; overflow-y: auto; padding-top: 0;">
+            <div class="sidebar-content" id="readings-list">
                 <!-- Readings will be injected here -->
                 <p class="sidebar-info">Log in to save your readings.</p>
             </div>
-            <div class="sidebar-footer" style="flex-shrink: 0;">
+            <div class="sidebar-footer">
                 <p>ReadSteed v1.0</p>
             </div>
         </aside>

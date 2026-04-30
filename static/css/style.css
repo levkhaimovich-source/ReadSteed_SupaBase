@@ -41,8 +41,7 @@ body {
     background-color: var(--bg-dark);
     color: var(--text-primary);
     overflow: hidden;
-    height: 100vh; /* fallback */
-    height: 100dvh; /* modern standard */
+    height: 100vh;
     display: flex;
 }
 
@@ -51,8 +50,6 @@ body {
     display: flex;
     width: 100%;
     height: 100%;
-    overflow: hidden;
-    min-height: 0;
 }
 
 /* Sidebar Overlay */
@@ -86,9 +83,6 @@ body {
     transition: transform var(--transition-speed) ease;
     z-index: 100;
     height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    min-height: 0;
 }
 
 .sidebar.closed {
@@ -111,10 +105,9 @@ body {
 }
 
 .sidebar-content {
-    padding: 20px 16px;
     flex: 1;
-    min-height: 0;
     overflow-y: auto;
+    padding: 20px 16px;
 }
 
 .sidebar-footer {
