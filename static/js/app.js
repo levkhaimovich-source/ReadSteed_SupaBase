@@ -445,8 +445,11 @@ class RSVPReader {
             }
             list.innerHTML = readings.map(r => `
                 <div class="reading-item ${this.currentReadingId === r.id ? 'active' : ''}" onclick="app.loadReading(${r.id})">
-                    <h3>${r.title}</h3>
-                    <p>${new Date(r.date).toLocaleDateString()}</p>
+                    <div class="reading-item-content">
+                        <h3>${r.title}</h3>
+                        <p>${new Date(r.date).toLocaleDateString()}</p>
+                    </div>
+                    <button class="delete-reading-btn" onclick="app.deleteReading(${r.id}, event)" title="Delete Reading">&times;</button>
                 </div>
             `).join('');
         } catch (e) {
@@ -465,6 +468,25 @@ class RSVPReader {
             this.startReader(true);
         } catch (e) {
             console.error("Failed to load reading", e);
+        }
+    }
+
+    async deleteReading(id, event) {
+        event.stopPropagation();
+        if (!confirm("Are you sure you want to delete this reading?")) return;
+        
+        try {
+            const resp = await fetch(`/api/readings/${id}`, { method: 'DELETE' });
+            const data = await resp.json();
+            if (data.success) {
+                if (this.currentReadingId === id) {
+                    this.newReading(); // Clear current if deleted
+                }
+                this.loadReadings();
+            }
+        } catch (e) {
+            console.error("Failed to delete reading", e);
+            this.showHUD("Failed to delete reading", 2000);
         }
     }
 

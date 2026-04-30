@@ -45,6 +45,26 @@ body {
     display: flex;
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+
 /* App Container */
 .app-container {
     display: flex;
@@ -564,9 +584,40 @@ select:focus {
     background: rgba(255,255,255,0.03);
     margin-bottom: 12px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, border-color 0.2s;
     border: 1px solid transparent;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.reading-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.delete-reading-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: 8px;
+    opacity: 0.3;
+    transition: opacity 0.2s, color 0.2s, background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.delete-reading-btn:hover {
+    opacity: 1;
+    color: var(--accent-red);
+    background: rgba(239, 68, 68, 0.1);
 }
 
 .reading-item:last-child {
