@@ -4,9 +4,7 @@
   "version": "1.0.0",
   "description": "Highlight any text and read it instantly with ReadSteed RSVP.",
   "permissions": [
-    "contextMenus",
-    "activeTab",
-    "scripting"
+    "contextMenus"
   ],
   "background": {
     "service_worker": "background.js"
